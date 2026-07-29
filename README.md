@@ -12,12 +12,9 @@
 - [核心功能](#核心功能)
 - [角色与权限](#角色与权限)
 - [技术架构](#技术架构)
-- [系统架构图](#系统架构图)
 - [API 概览](#api-概览)
-- [项目管理](#项目管理)
 - [快速开始](#快速开始)
 - [项目结构](#项目结构)
-- [文档体系](#文档体系)
 - [License](#license)
 
 ---
@@ -116,66 +113,25 @@
 
 | 角色 | 账号 | 密码 |
 |------|------|------|
-| 管理员 | admin | password |
-| 学生 | user001 ~ user005 | 123456Ab |
+| 管理员 | admin | Ab123456 |
+| 学生 | user001 ~ user005 | Ab123456 |
 
 ---
 
 ## 技术架构
 
-| 层级 | 技术 | 版本 | 用途 |
-|------|------|------|------|
-| 前端 | React + TypeScript + Vite | React ^19.2 | 用户界面 |
-| UI 组件库 | Ant Design | ^6.5 | 企业级 UI 组件 |
-| 后端 | Spring Boot | 3.4.1 | 业务服务框架 |
-| JDK | Java | 21 | 开发语言 |
-| ORM | JPA / Hibernate | - | 对象关系映射 |
-| 数据库 | MySQL | 8.x | 关系型数据库 |
-| 数据库迁移 | Flyway | - | 版本化数据库管理 |
-| 认证 | JWT (jjwt 0.12.5) | - | 无状态认证 |
-| 密码加密 | BCrypt | - | 安全哈希 |
-| 部署 | Docker | - | 容器化 |
-| 容器编排 | Docker Compose | - | 多服务编排 |
-| 集群部署 | Kubernetes | - | 生产级部署（配置就绪） |
-
----
-
-## 系统架构图
-
-```mermaid
-flowchart TB
-    subgraph Client["客户端"]
-        Browser[浏览器]
-    end
-
-    subgraph Frontend["前端 React 19 + Ant Design"]
-        Pages[6 个功能页面]
-        AuthGuard[路由守卫 / JWT 验证]
-        Context[AuthContext 状态管理]
-    end
-
-    subgraph Backend["后端 Spring Boot 3.4"]
-        Controllers[4 个 Controller]
-        Services[4 个 Service]
-        Security[JWT 认证过滤器]
-        JPA[JPA Repository]
-        Flyway[Flyway 数据库迁移]
-    end
-
-    subgraph Database["数据库"]
-        MySQL[(MySQL 8.x)]
-        SQL[DDL + 种子数据]
-    end
-
-    subgraph Infrastructure["基础设施"]
-        Docker[Docker / K8s]
-    end
-
-    Client --> Frontend
-    Frontend -->|API 请求| Backend
-    Backend --> MySQL
-    Backend --> Infrastructure
-```
+| 层级 | 技术 | 用途 |
+|------|------|------|
+| 前端 | React 19 + TypeScript + Vite | 用户界面 |
+| UI 组件库 | Ant Design 6 | 企业级 UI 组件 |
+| 后端 | Spring Boot 3.4 + Java 21 | 业务服务框架 |
+| ORM | JPA / Hibernate | 对象关系映射 |
+| 数据库 | MySQL 8.x | 关系型数据库 |
+| 数据库迁移 | Flyway | 版本化数据库管理 |
+| 认证 | JWT (jjwt 0.12.5) | 无状态认证 |
+| 密码加密 | BCrypt | 安全哈希 |
+| 容器化 | Docker + Docker Compose | 多服务编排 |
+| 集群部署 | Kubernetes | 生产级部署（配置就绪） |
 
 ---
 
@@ -222,39 +178,24 @@ flowchart TB
 
 ---
 
-## 项目管理
-
-### 文档驱动开发
-
-本项目按照"需求 → 设计 → 开发 → 验收"的完整流程推进：
-
-| 阶段 | 产出 | 说明 |
-|------|------|------|
-| 需求分析 | [需求说明](/docs/requirement.md) | 用户角色定义、功能清单、页面流程 |
-| 接口设计 | [API 文档](/docs/api.md) | RESTful 接口定义、参数说明、返回格式 |
-| 开发实现 | Java + React 代码 | 前后端分离开发 |
-| 验收测试 | [验收报告](/docs/acceptance.md) | 功能测试、边界条件验证 |
-
-### 技术亮点
-
-- **乐观锁处理并发预约**：设备表使用 `@Version` 注解，防止同一时段重复预约
-- **JWT 无状态认证**：Token 存储在 localStorage，Axios 拦截器自动注入
-- **Flyway 数据库迁移**：版本化的 SQL 脚本，确保数据库变更可追溯
-- **前后端分离代理**：Vite 开发服务器将 `/api` 请求代理到后端 8080 端口
-- **容器化部署就绪**：Dockerfile + K8s 配置齐全
-
----
-
 ## 快速开始
 
 ### 前置条件
 
 - Node.js 18+
+- pnpm (推荐) 或 npm
 - Java 21+
 - MySQL 8.x
 - Maven 3.x
 
-### 1. 数据库初始化
+### 1. 配置环境变量
+
+```bash
+# 后端环境变量（backend/.env）
+MYSQL_ROOT_PASSWORD=your_mysql_password
+```
+
+### 2. 数据库初始化
 
 ```bash
 # 创建数据库
@@ -265,7 +206,7 @@ mysql -u root -p ers < database/schema.sql
 mysql -u root -p ers < database/seed.sql
 ```
 
-### 2. 启动后端
+### 3. 启动后端
 
 ```bash
 cd backend
@@ -274,38 +215,24 @@ mvn spring-boot:run
 
 后端默认启动在 `http://localhost:8080`
 
-### 3. 启动前端
+### 4. 启动前端
 
 ```bash
 cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 前端默认启动在 `http://localhost:5173`
 
-### 4. Docker 部署
+### 5. Docker Compose 部署
 
 ```bash
-# 构建后端镜像
-cd backend && docker build -t ers-backend .
-cd ..
-
-# 构建前端镜像
-cd frontend && docker build -t ers-frontend .
-cd ..
-
-# 启动 MySQL
-docker run -d --name ers-mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=ers -p 3306:3306 mysql:8
-
-# 启动后端
-docker run -d --name ers-backend --link ers-mysql -p 8080:8080 ers-backend
-
-# 启动前端
-docker run -d --name ers-frontend -p 80:80 ers-frontend
+# 一键启动所有服务
+docker-compose up -d
 ```
 
-### 5. K8s 部署
+### 6. K8s 部署
 
 ```bash
 kubectl apply -f k8s/namespace.yaml
@@ -330,14 +257,7 @@ equipment-reservation-system/
 │       └── filter/                   # JWT 认证过滤器
 ├── frontend/                         # React 前端
 │   └── src/
-│       ├── pages/                    # 6 个功能页面
-│       │   ├── Login/                # 登录
-│       │   ├── Register/             # 注册
-│       │   ├── EquipmentList/        # 设备列表
-│       │   ├── ReservationCreate/    # 创建预约
-│       │   ├── ReservationList/      # 预约记录
-│       │   ├── Approval/             # 审批管理
-│       │   └── UserManagement/       # 用户管理
+│       ├── pages/                    # 7 个功能页面
 │       ├── components/               # 通用组件
 │       ├── context/                  # AuthContext
 │       └── api/                      # API 调用
@@ -346,29 +266,11 @@ equipment-reservation-system/
 │   └── seed.sql                      # 初始化数据
 ├── docs/                             # 项目文档
 │   ├── requirement.md                # 需求说明
-│   ├── api.md                        # API 文档
-│   └── acceptance.md                 # 验收报告
+│   └── api.md                        # API 文档
 ├── k8s/                              # Kubernetes 配置
-│   ├── namespace.yaml
-│   ├── backend-deployment.yaml
-│   ├── frontend-deployment.yaml
-│   └── mysql-statefulset.yaml
 ├── docker-compose.yml                # Docker 编排
-├── README.md
-└── LICENSE
+└── README.md
 ```
-
----
-
-## 文档体系
-
-| 文档 | 路径 | 说明 |
-|------|------|------|
-| [需求说明](/docs/requirement.md) | docs/requirement.md | 用户角色、功能清单、页面清单 |
-| [API 文档](/docs/api.md) | docs/api.md | 全部接口定义、参数、返回格式 |
-| [验收报告](/docs/acceptance.md) | docs/acceptance.md | 功能验收、边界测试 |
-| [数据库脚本](/database/schema.sql) | database/schema.sql | 5 张表的 DDL |
-| [种子数据](/database/seed.sql) | database/seed.sql | 默认账号、设备、分类数据 |
 
 ---
 

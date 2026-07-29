@@ -11,8 +11,8 @@
     </parent>
 
     <groupId>com.ers</groupId>
-    <artifactId>backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>equipment-reservation-system</artifactId>
+    <version>1.0.0</version>
     <name>equipment-reservation-system</name>
     <description>Equipment Reservation and Consumables Management System</description>
 
