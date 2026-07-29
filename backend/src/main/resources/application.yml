@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: equipment-reservation-system
+  main:
+    allow-circular-references: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/ers?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=utf-8
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  jackson:
+    default-property-inclusion: non_null
+    locale: zh_CN
+    time-zone: Asia/Shanghai
+    serialization:
+      write-dates-as-timestamps: false
+    charset: UTF-8
+    date-format: yyyy-MM-dd'T'HH:mm:ss
+    java.time.format:
+      datetime-format: yyyy-MM-dd'T'HH:mm:ss
+
+  flyway:
+    enabled: false
+
+  web:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true

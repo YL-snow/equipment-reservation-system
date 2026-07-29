@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: equipment-backend
+  namespace: app
+  labels:
+    app: equipment-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: equipment-backend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: equipment-backend
+    spec:
+      containers:
+      - name: equipment-backend
+        image: 10.160.199.150:8443/32301163/equipment-backend:v2.0.10
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql.app.svc.cluster.local:3306/ers?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&useUnicode=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "Ab123456"
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: "validate"
+        - name: SPRING_JPA_SHOW_SQL
+          value: "false"
+        - name: SPRING_FLYWAY_ENABLED
+          value: "false"
+        - name: LOGGING_LEVEL_COM_ERS
+          value: "DEBUG"
+        - name: LOGGING_LEVEL_ORG_HIBERNATE_SQL
+          value: "DEBUG"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/equipment
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/equipment
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          timeoutSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: equipment-backend
+  namespace: app
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: equipment-backend

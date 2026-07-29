@@ -1,0 +1,1 @@
+ALTER TABLE `reservation` ADD INDEX IF NOT EXISTS `idx_user_id` (`user_id`);
