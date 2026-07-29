@@ -1,4 +1,4 @@
-# Equipment Reservation System · 实验室设备预约与耗材管理系统
+﻿# Equipment Reservation System · 实验室设备预约与耗材管理系统
 
 > 面向高校实验室的设备资源管理平台 — 预约创建、冲突检测、审批流程、库存追踪
 
@@ -274,6 +274,67 @@ equipment-reservation-system/
 
 ---
 
+
+## 项目管理
+
+### 开发流程
+
+本项目按照软件工程的完整流程推进，从需求分析到验收交付每个阶段都有产出：
+
+```
+需求分析 → 接口设计 → 开发实现 → 验收测试
+   ↓            ↓           ↓           ↓
+ 需求文档      API 文档     代码实现     验收报告
+```
+
+### 项目里程碑
+
+| 阶段 | 周期 | 交付物 | 说明 |
+|------|------|--------|------|
+| 需求分析 | Day 1-2 | [需求文档](/docs/requirement.md) | 用户画像、用户故事、MoSCoW 优先级、功能模块定义 |
+| 接口设计 | Day 2-3 | [API 文档](/docs/api.md) | RESTful 接口定义、请求/返回格式、状态码约定 |
+| 数据库设计 | Day 3 | schema.sql + Flyway 迁移脚本 | 5 张业务表设计、关系建模 |
+| 后端开发 | Day 4-7 | Spring Boot 服务端代码 | 4 个 Controller、4 个 Service、JPA Repository、JWT 认证 |
+| 前端开发 | Day 5-8 | React 前端代码 | 7 个功能页面、路由守卫、状态管理 |
+| 联调测试 | Day 8-9 | 前后端集成 | 接口联调、异常场景覆盖 |
+| 验收交付 | Day 10 | [验收报告](/docs/acceptance.md) | 功能验收、边界测试、bug 修复 |
+
+### 技术选型决策
+
+| 决策 | 选项 | 选择理由 |
+|------|------|---------|
+| 前端框架 | React 19 vs Vue 3 | React 生态成熟、组件库 Ant Design 支持好、TypeScript 集成优秀 |
+| UI 组件库 | Ant Design 6 vs Material UI | Ant Design 更适合中后台管理类系统，中文文档完善 |
+| 后端框架 | Spring Boot 3 vs Express | Java 生态适合复杂业务系统，JPA 减少 SQL 编写，与 MySQL 配合稳定 |
+| 数据库 | MySQL 8 vs PostgreSQL | 高校环境 MySQL 更常见，utf8mb4 完全支持中文 |
+| 认证方式 | JWT vs Session | 前后端分离架构下 JWT 天然适合，无需额外 session 同步 |
+| 并发控制 | 乐观锁 vs 悲观锁 | 预约场景读多写少，乐观锁性能更好，版本冲突时可友好提示 |
+
+### 范围管理
+
+采用 MoSCoW 方法进行功能优先级管理（详见 [需求文档](/docs/requirement.md#moscow-优先级矩阵)）：
+
+- **Must Have（必须做）**：用户认证、设备浏览、预约创建、冲突检测、审批流程、设备归还 — 构成完整业务闭环
+- **Should Have（应该做）**：预约记录查询、用户管理、密码修改 — 提升体验和管理效率
+- **Could Have（可以做）**：设备分类管理、黑名单、库存流水 — v1.1 迭代范围
+- **Won't Have（本次不做）**：消息通知、数据报表、LDAP 集成
+
+### 质量保障
+
+- **冲突检测正确性**：使用数据库乐观锁（`@Version`）确保并发场景下预约不超卖
+- **统一异常处理**：全局 `@ControllerAdvice` 捕获业务异常，统一返回格式
+- **密码安全**：BCrypt 加密存储，不保留明文
+- **Token 管理**：JWT 黑名单机制实现登出，支持过期校验
+- **数据库版本控制**：Flyway 迁移脚本确保数据变更可追溯、可回滚
+
+### 文档体系
+
+| 文档 | 作用 | 面向读者 |
+|------|------|---------|
+| [需求说明](/docs/requirement.md) | 用户画像、用户故事、MoSCoW 优先级 | 产品/项目经理 |
+| [API 文档](/docs/api.md) | 接口定义、参数说明、返回格式 | 前后端开发 |
+| [验收报告](/docs/acceptance.md) | 功能验收清单、API 验证、边界测试 | 测试/项目经理 |
+| [设计决策](/docs/requirement.md#技术选型决策) | 技术选型理由、架构权衡 | 架构师/技术面试 |
 ## License
 
 Apache 2.0

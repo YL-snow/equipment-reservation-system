@@ -1,4 +1,4 @@
-# 接口文档
+﻿# 接口文档
 
 ## 接口说明
 
@@ -33,7 +33,7 @@
 
 | 方法 | 路径 | 请求参数 | 返回说明 | 认证 |
 |---|---|---|---|---|
-| POST | `/api/auth/login` | `{"userId":"admin","password":"password"}` | `{token, user信息}` | 否 |
+| POST | `/api/auth/login` | `{"userId":"admin","password":"Ab123456"}` | `{token, user信息}` | 否 |
 | POST | `/api/auth/register` | `{"userId":"xxx","name":"xxx","password":"xxx"}` | 注册成功消息 | 否 |
 | PUT | `/api/auth/change-password` | `{"oldPassword":"xxx","newPassword":"xxx"}` | 修改成功消息 | 是 |
 | POST | `/api/auth/logout` | 无 | 登出成功消息 | 是 |
@@ -65,7 +65,7 @@
 | GET | `/api/users` | `page, size, name, userId` | 分页用户列表 | 是 |
 | GET | `/api/users/{id}` | 路径参数 | 用户详情 | 是 |
 | PUT | `/api/users/{id}` | `{"name":"新姓名"}` | 修改成功消息 | 是 |
-| PUT | `/api/users/{id}/reset-password` | 路径参数 | 重置成功（密码为 123456Ab） | 是 |
+| PUT | `/api/users/{id}/reset-password` | 路径参数 | 重置成功（密码为 Ab123456） | 是 |
 | PUT | `/api/users/{id}/role` | `{"role":"ADMIN"}` | 修改成功消息 | 是 |
 
 ## 接口设计原则
