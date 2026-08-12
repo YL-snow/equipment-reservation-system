@@ -17,6 +17,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<Result<Void>> handleBusinessException(BusinessException e) {
         log.warn("业务异常: code={}, message={}", e.getCode(), e.getMessage());
+        if ("UNAUTHORIZED".equals(e.getCode())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Result.error(e.getCode(), e.getMessage()));
+        }
+        if ("FORBIDDEN".equals(e.getCode())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Result.error(e.getCode(), e.getMessage()));
+        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Result.error(e.getCode(), e.getMessage()));
     }
@@ -34,7 +42,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Result<Void>> handleException(Exception e) {
-        log.error("系统内部错误: ", e);  // ⬅️ 关键：打印完整堆栈
+        log.error("系统内部错误: ", e);  // 打印完整堆栈
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Result.error("SYSTEM_ERROR", "系统内部错误"));
     }

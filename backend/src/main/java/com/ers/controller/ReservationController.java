@@ -4,6 +4,7 @@ import com.ers.dto.*;
 import com.ers.entity.Reservation;
 import com.ers.entity.User;
 import com.ers.entity.UserRole;
+import com.ers.exception.BusinessException;
 import com.ers.service.AuthService;
 import com.ers.service.ReservationService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,27 +28,21 @@ public class ReservationController {
 
     @GetMapping
     public Result<List<Reservation>> listAll(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            try {
-                User user = authService.getUserFromToken(authHeader);
-                if (user.getRole() == UserRole.ADMIN) {
-                    return Result.success(reservationService.findAll());
-                }
-                return Result.success(reservationService.findByUserId(user.getId()));
-            } catch (Exception e) {
-                return Result.success(reservationService.findAll());
-            }
+        User user = requireUser(request);
+        if (user.getRole() == UserRole.ADMIN) {
+            return Result.success(reservationService.findAll());
         }
-        return Result.success(reservationService.findAll());
+        return Result.success(reservationService.findByUserId(user.getId()));
     }
 
     @GetMapping("/conflict-check")
     public Result<Map<String, Object>> conflictCheck(
+            HttpServletRequest servletRequest,
             @RequestParam Long equipmentId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endTime) {
 
+        requireUser(servletRequest);
         List<Reservation> conflicts = reservationService.checkConflict(equipmentId, startTime, endTime);
 
         Map<String, Object> data = new HashMap<>();
@@ -66,12 +61,10 @@ public class ReservationController {
 
     @PostMapping
     public Result<Map<String, Object>> create(HttpServletRequest servletRequest, @RequestBody CreateReservationRequest request) {
-        String authHeader = servletRequest.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            User user = authService.getUserFromToken(authHeader);
-            request.setApplicant(user.getName());
-            request.setUserId(user.getId());
-        }
+        User user = requireUser(servletRequest);
+        request.setApplicant(user.getName());
+        request.setUserId(user.getId());
+
         Reservation reservation = reservationService.createReservation(request);
         Map<String, Object> data = new HashMap<>();
         data.put("id", reservation.getId());
@@ -80,7 +73,10 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}/approve")
-    public Result<Map<String, Object>> approve(@PathVariable Long id, @RequestBody ApproveRequest request) {
+    public Result<Map<String, Object>> approve(HttpServletRequest servletRequest, @PathVariable Long id, @RequestBody ApproveRequest request) {
+        User operator = requireAdmin(servletRequest);
+        request.setOperator(operator.getName());
+
         Reservation reservation = reservationService.approveReservation(id, request.getOperator());
         Map<String, Object> data = new HashMap<>();
         data.put("id", reservation.getId());
@@ -89,7 +85,10 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}/reject")
-    public Result<Map<String, Object>> reject(@PathVariable Long id, @RequestBody ApproveRequest request) {
+    public Result<Map<String, Object>> reject(HttpServletRequest servletRequest, @PathVariable Long id, @RequestBody ApproveRequest request) {
+        User operator = requireAdmin(servletRequest);
+        request.setOperator(operator.getName());
+
         Reservation reservation = reservationService.rejectReservation(id, request.getOperator());
         Map<String, Object> data = new HashMap<>();
         data.put("id", reservation.getId());
@@ -98,11 +97,34 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}/return")
-    public Result<Map<String, Object>> returnReservation(@PathVariable Long id, @RequestBody ReturnRequest request) {
+    public Result<Map<String, Object>> returnReservation(HttpServletRequest servletRequest, @PathVariable Long id, @RequestBody ReturnRequest request) {
+        User operator = requireAdmin(servletRequest);
+        request.setOperator(operator.getName());
+
         Reservation reservation = reservationService.returnReservation(id, request.getOperator());
         Map<String, Object> data = new HashMap<>();
         data.put("id", reservation.getId());
         data.put("status", reservation.getStatus().name());
         return Result.success("归还成功，库存已加回", data);
+    }
+
+    private User requireUser(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new BusinessException("UNAUTHORIZED", "未授权，请先登录");
+        }
+        try {
+            return authService.getUserFromToken(authHeader);
+        } catch (Exception e) {
+            throw new BusinessException("UNAUTHORIZED", "登录已失效，请重新登录");
+        }
+    }
+
+    private User requireAdmin(HttpServletRequest request) {
+        User user = requireUser(request);
+        if (user.getRole() != UserRole.ADMIN) {
+            throw new BusinessException("FORBIDDEN", "仅管理员可执行此操作");
+        }
+        return user;
     }
 }

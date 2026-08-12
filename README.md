@@ -1,4 +1,4 @@
-﻿# Equipment Reservation System · 实验室设备预约与耗材管理系统
+# Equipment Reservation System · 实验室设备预约与耗材管理系统
 
 > 面向高校实验室的设备资源管理平台 — 预约创建、冲突检测、审批流程、库存追踪
 
@@ -73,7 +73,7 @@
 |------|------|
 | 设备浏览 | 展示设备列表，支持按分类筛选、按名称搜索 |
 | 设备详情 | 查看设备规格、库存数量、当前预约状态 |
-| 分类管理 | 设备分类的增删改查 |
+| 分类管理 | 设备分类浏览与筛选（增删改接口预留） |
 
 ### 预约管理
 
@@ -91,7 +91,7 @@
 |------|------|
 | 入库管理 | 耗材入库记录，自动更新库存 |
 | 领用管理 | 预约扣减库存，归还恢复库存 |
-| 变更流水 | 完整记录所有库存变动，支持追溯 |
+| 变更流水 | 后端记录 DEDUCT/RETURN 库存日志，支持追溯（管理端展示页待补充） |
 
 ### 用户管理
 
@@ -128,7 +128,7 @@
 | 后端 | Spring Boot 3.4 + Java 21 | 业务服务框架 |
 | ORM | JPA / Hibernate | 对象关系映射 |
 | 数据库 | MySQL 8.x | 关系型数据库 |
-| 数据库迁移 | Flyway | 版本化数据库管理 |
+| 数据库初始化 | schema.sql + seed.sql | 建表与种子数据（Flyway 脚本保留但未启用） |
 | 认证 | JWT (jjwt 0.12.5) | 无状态认证 |
 | 密码加密 | BCrypt | 安全哈希 |
 | 容器化 | Docker + Docker Compose | 多服务编排 |
@@ -163,19 +163,20 @@
 | GET | `/api/reservations` | 获取预约列表 | 是 |
 | POST | `/api/reservations` | 创建预约 | 是 |
 | GET | `/api/reservations/conflict-check` | 冲突检测 | 是 |
-| PUT | `/api/reservations/{id}/approve` | 审批通过 | 是 |
-| PUT | `/api/reservations/{id}/reject` | 驳回预约 | 是 |
-| PUT | `/api/reservations/{id}/return` | 确认归还 | 是 |
+| PUT | `/api/reservations/{id}/approve` | 审批通过 | 是（管理员） |
+| PUT | `/api/reservations/{id}/reject` | 驳回预约 | 是（管理员） |
+| PUT | `/api/reservations/{id}/return` | 确认归还 | 是（管理员） |
 
 ### 用户接口 `/api/users`
 
 | 方法 | 路径 | 说明 | 认证 |
 |------|------|------|------|
-| GET | `/api/users` | 分页用户列表 | 是 |
-| GET | `/api/users/{id}` | 用户详情 | 是 |
-| PUT | `/api/users/{id}` | 修改用户 | 是 |
-| PUT | `/api/users/{id}/reset-password` | 重置密码 | 是 |
-| PUT | `/api/users/{id}/role` | 修改角色 | 是 |
+| GET | `/api/users` | 分页用户列表 | 是（管理员） |
+| GET | `/api/users/{id}` | 用户详情 | 是（管理员） |
+| PUT | `/api/users/{id}` | 修改用户 | 是（管理员） |
+| PUT | `/api/users/{id}/reset-password` | 重置密码 | 是（管理员） |
+| PUT | `/api/users/{id}/role` | 修改角色 | 是（管理员） |
+| PUT | `/api/users/{id}/blacklist` | 加入/移出失信名单 | 是（管理员） |
 
 ---
 
@@ -254,7 +255,7 @@ equipment-reservation-system/
 │       ├── service/                  # 4 个 Service
 │       ├── entity/                   # 7 个实体类
 │       ├── repository/               # 5 个 Repository
-│       ├── dto/                      # 8 个 DTO
+│       ├── dto/                      # 9 个 DTO
 │       ├── config/                   # 配置类
 │       ├── exception/                # 异常处理
 │       └── filter/                   # JWT 认证过滤器
@@ -321,7 +322,7 @@ equipment-reservation-system/
 
 - **Must Have（必须做）**：用户认证、设备浏览、预约创建、冲突检测、审批流程、设备归还 — 构成完整业务闭环
 - **Should Have（应该做）**：预约记录查询、用户管理、密码修改 — 提升体验和管理效率
-- **Could Have（可以做）**：设备分类管理、黑名单、库存流水 — v1.1 迭代范围
+- **Could Have（可以做）**：设备分类增删改、消息通知、数据报表、LDAP 集成 — v1.1+ 迭代范围（黑名单、库存流水已在当前版本实现）
 - **Won't Have（本次不做）**：消息通知、数据报表、LDAP 集成
 
 ### 质量保障
@@ -330,7 +331,7 @@ equipment-reservation-system/
 - **统一异常处理**：全局 `@ControllerAdvice` 捕获业务异常，统一返回格式
 - **密码安全**：BCrypt 加密存储，不保留明文
 - **Token 管理**：JWT 黑名单机制实现登出，支持过期校验
-- **数据库版本控制**：Flyway 迁移脚本确保数据变更可追溯、可回滚
+- **数据库初始化**：启动时由 `schema.sql` + `seed.sql` 初始化，`db/migration` 保留 Flyway 脚本但未启用
 
 ### 文档体系
 

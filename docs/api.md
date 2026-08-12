@@ -1,4 +1,4 @@
-﻿# 接口文档
+# 接口文档
 
 ## 接口说明
 
@@ -54,19 +54,20 @@
 | GET | `/api/reservations` | 无 | 预约列表（管理员看全部，学生看自己的） | 是 |
 | POST | `/api/reservations` | `{"equipmentId":1,"quantity":1,"startTime":"...","endTime":"..."}` | 预约ID和状态 | 是 |
 | GET | `/api/reservations/conflict-check` | `equipmentId, startTime, endTime` | 冲突检测结果 | 是 |
-| PUT | `/api/reservations/{id}/approve` | 路径参数 | 审批成功消息 | 是 |
-| PUT | `/api/reservations/{id}/reject` | 路径参数 | 驳回成功消息 | 是 |
-| PUT | `/api/reservations/{id}/return` | 路径参数 | 归还成功消息 | 是 |
+| PUT | `/api/reservations/{id}/approve` | 路径参数 | 审批成功消息 | 是（管理员） |
+| PUT | `/api/reservations/{id}/reject` | 路径参数 | 驳回成功消息 | 是（管理员） |
+| PUT | `/api/reservations/{id}/return` | 路径参数 | 归还成功消息 | 是（管理员） |
 
 ### 用户接口 `/api/users`
 
 | 方法 | 路径 | 请求参数 | 返回说明 | 认证 |
 |---|---|---|---|---|
-| GET | `/api/users` | `page, size, name, userId` | 分页用户列表 | 是 |
-| GET | `/api/users/{id}` | 路径参数 | 用户详情 | 是 |
-| PUT | `/api/users/{id}` | `{"name":"新姓名"}` | 修改成功消息 | 是 |
-| PUT | `/api/users/{id}/reset-password` | 路径参数 | 重置成功（密码为 Ab123456） | 是 |
-| PUT | `/api/users/{id}/role` | `{"role":"ADMIN"}` | 修改成功消息 | 是 |
+| GET | `/api/users` | `page, size, name, userId` | 分页用户列表 | 是（管理员） |
+| GET | `/api/users/{id}` | 路径参数 | 用户详情 | 是（管理员） |
+| PUT | `/api/users/{id}` | `{"name":"新姓名"}` | 修改成功消息 | 是（管理员） |
+| PUT | `/api/users/{id}/reset-password` | 路径参数 | 重置成功（密码为 Ab123456） | 是（管理员） |
+| PUT | `/api/users/{id}/role` | `{"role":"ADMIN"}` | 修改成功消息 | 是（管理员） |
+| PUT | `/api/users/{id}/blacklist` | `{"isBlacklisted":true}` | 加入/移出失信名单 | 是（管理员） |
 
 ## 接口设计原则
 

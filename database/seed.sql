@@ -52,13 +52,12 @@ INSERT INTO equipment (name, model, total_quantity, available_qty, status, categ
 
 -- ============================================================
 -- 3. 用户数据
--- 管理员密码: password (BCrypt加密)
--- 学生密码: 123456Ab (BCrypt加密)
+-- 管理员/学生默认密码: Ab123456 (BCrypt加密)
 -- ============================================================
 INSERT INTO user (user_id, name, password, role, is_blacklisted, overdue_count) VALUES
-    ('admin',   '管理员',   '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', 'ADMIN',   0, 0),
-    ('user001', '王校晓',   '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', 'STUDENT', 0, 0),
-    ('user002', '王一晴',   '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', 'STUDENT', 0, 0),
-    ('user003', '张三',     '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', 'STUDENT', 0, 0),
-    ('user004', '李四',     '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', 'STUDENT', 0, 0),
-    ('user005', '王五',     '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', 'STUDENT', 0, 0);
+    ('admin',   '管理员',   '$2a$10$bElBxjPwM0FmAiNeL2OM0.Xv2fNvHJKtCV7zkHqwBxfYo7sxvCi9u', 'ADMIN',   0, 0),
+    ('user001', '王校晓',   '$2a$10$bElBxjPwM0FmAiNeL2OM0.Xv2fNvHJKtCV7zkHqwBxfYo7sxvCi9u', 'STUDENT', 0, 0),
+    ('user002', '王一晴',   '$2a$10$bElBxjPwM0FmAiNeL2OM0.Xv2fNvHJKtCV7zkHqwBxfYo7sxvCi9u', 'STUDENT', 0, 0),
+    ('user003', '张三',     '$2a$10$bElBxjPwM0FmAiNeL2OM0.Xv2fNvHJKtCV7zkHqwBxfYo7sxvCi9u', 'STUDENT', 0, 0),
+    ('user004', '李四',     '$2a$10$bElBxjPwM0FmAiNeL2OM0.Xv2fNvHJKtCV7zkHqwBxfYo7sxvCi9u', 'STUDENT', 0, 0),
+    ('user005', '王五',     '$2a$10$bElBxjPwM0FmAiNeL2OM0.Xv2fNvHJKtCV7zkHqwBxfYo7sxvCi9u', 'STUDENT', 0, 0);

@@ -15,8 +15,8 @@ CREATE TABLE `user` (
 ) COMMENT='用户表';
 
 INSERT INTO `user` (`user_id`, `name`, `password`, `role`) VALUES
-('admin', '管理员', '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', 'ADMIN'),
-('system', '系统用户', '$2a$10$N9qo8uLOickgx2ZMRZoMye.IjzqAKL9xL5jvMFVdNJHvGCgTq/VEq', 'SYSTEM');
+('admin', '管理员', '$2a$10$bElBxjPwM0FmAiNeL2OM0.Xv2fNvHJKtCV7zkHqwBxfYo7sxvCi9u', 'ADMIN'),
+('system', '系统用户', '$2a$10$bElBxjPwM0FmAiNeL2OM0.Xv2fNvHJKtCV7zkHqwBxfYo7sxvCi9u', 'SYSTEM');
 
 ALTER TABLE `reservation` ADD COLUMN `user_id` BIGINT NOT NULL DEFAULT 2 COMMENT '关联用户ID，默认关联系统用户';
 ALTER TABLE `reservation` ADD CONSTRAINT `fk_res_user` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE;

@@ -65,6 +65,7 @@
 | PUT | `/api/users/{id}` | ✅ |
 | PUT | `/api/users/{id}/reset-password` | ✅ |
 | PUT | `/api/users/{id}/role` | ✅ |
+| PUT | `/api/users/{id}/blacklist` | ✅ |
 
 ## 已知问题
 
