@@ -8,6 +8,9 @@
 
 ## 主链路验证
 
+> 说明：种子数据不包含预约记录，步骤 5 新建的预约作为步骤 6-8 的验证数据；步骤 10 中的“新密码”为管理员重置后的 `Ab123456`（与种子数据默认密码一致）。
+
+
 | 步骤 | 操作 | 期望结果 | 实际结果 | 是否通过 |
 |---|---|---|---|---|
 | 1 | 访问 `http://localhost:5174`，跳转到登录页 | 显示登录表单 | 显示登录表单 | ✅ |
@@ -19,13 +22,13 @@
 | 7 | 审批通过预约 | 预约状态变为 APPROVED | 审批通过 | ✅ |
 | 8 | 执行归还操作 | 设备库存恢复，状态变为 RETURNED | 归还成功 | ✅ |
 | 9 | 查看用户管理页，重置用户密码 | 密码重置成功 | 密码重置成功 | ✅ |
-| 10 | 学生 user001 使用新密码登录 | 登录成功 | 登录成功 | ✅ |
+| 10 | 学生 user001 使用重置后的密码 Ab123456 登录 | 登录成功 | 登录成功 | ✅ |
 
 ## 数据库验证
 
 | 操作后 | SQL 查询 | 结果确认 |
 |---|---|---|
-| 创建预约 | `SELECT * FROM reservation WHERE applicant = '管理员';` | 预约记录写入，status='PENDING' |
+| 创建预约 | `SELECT * FROM reservation ORDER BY id DESC LIMIT 1;` | 预约记录写入，status='PENDING' |
 | 审批通过 | `SELECT status FROM reservation WHERE id = 1;` | status='APPROVED' |
 | 归还设备 | `SELECT available_qty FROM equipment WHERE id = 1;` | 可用数量恢复 |
 | 注册用户 | `SELECT * FROM user WHERE user_id = 'new_user';` | 新用户记录写入 |
