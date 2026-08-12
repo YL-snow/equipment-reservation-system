@@ -269,7 +269,9 @@ equipment-reservation-system/
 │   └── seed.sql                      # 初始化数据
 ├── docs/                             # 项目文档
 │   ├── requirement.md                # 需求说明
-│   └── api.md                        # API 文档
+│   ├── api.md                        # API 文档
+│   ├── flow-diagrams.md              # 流程图、时序图、状态机
+│   └── metrics-and-acceptance.md     # 指标与验收
 ├── k8s/                              # Kubernetes 配置
 ├── docker-compose.yml                # Docker 编排
 └── README.md
