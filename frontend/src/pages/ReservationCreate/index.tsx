@@ -39,6 +39,7 @@ export default function ReservationCreate() {
   const equipmentId = Form.useWatch('equipmentId', form);
   const startTime = Form.useWatch('startTime', form);
   const endTime = Form.useWatch('endTime', form);
+  const selectedEquipment = equipments.find((e) => e.id === equipmentId);
 
   const checkConflict = useCallback(async (eqId: number, st: dayjs.Dayjs, et: dayjs.Dayjs) => {
     if (!eqId || !st || !et) {
@@ -121,8 +122,30 @@ export default function ReservationCreate() {
           <Text type="secondary">{user?.name || '未登录'}</Text>
         </Form.Item>
 
-        <Form.Item name="quantity" label="预约数量" rules={[{ required: true, message: '请输入数量' }]}>
-          <InputNumber min={1} style={{ width: '100%' }} placeholder="请输入数量" />
+        <Form.Item
+          name="quantity"
+          label="预约数量"
+          extra={selectedEquipment ? `当前可用库存：${selectedEquipment.availableQty}` : undefined}
+          rules={[
+            { required: true, message: '请输入数量' },
+            {
+              validator: (_, value) => {
+                if (!selectedEquipment || !value) return Promise.resolve();
+                if (value < 1) return Promise.reject(new Error('预约数量必须大于 0'));
+                if (value > selectedEquipment.availableQty) {
+                  return Promise.reject(new Error(`预约数量不能超过当前可用库存 ${selectedEquipment.availableQty}`));
+                }
+                return Promise.resolve();
+              },
+            },
+          ]}
+        >
+          <InputNumber
+            min={1}
+            max={selectedEquipment?.availableQty}
+            style={{ width: '100%' }}
+            placeholder="请输入数量"
+          />
         </Form.Item>
 
         <Form.Item

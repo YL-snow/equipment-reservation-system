@@ -10,6 +10,18 @@ $ErrorActionPreference = "Continue"
 $rootDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $rootDir
 
+function Stop-PortListener($Port, $ServiceName) {
+    $connections = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
+    $processIds = @($connections | Select-Object -ExpandProperty OwningProcess -Unique)
+    if ($processIds.Count -gt 0) {
+        Write-Host "   -> 检测到旧 $ServiceName 正在运行 (PID $($processIds -join ', '))，先停止..." -ForegroundColor Yellow
+        foreach ($processId in $processIds) {
+            Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue
+        }
+        Start-Sleep -Seconds 2
+    }
+}
+
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host "    设备预约与耗材管理系统 — 启动中..." -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
@@ -66,59 +78,58 @@ try {
 Write-Host ""
 
 # =====================================================
-# 步骤 2: 启动后端（Spring Boot，端口 8080）
+# 步骤 2: 启动后端（Spring Boot，端口 8082）
 # =====================================================
-Write-Host "[2/3] 启动后端服务 (端口 8080)..." -ForegroundColor Yellow
+Write-Host "[2/3] 启动后端服务 (端口 8082)..." -ForegroundColor Yellow
 $backendPath = Join-Path $rootDir "backend"
 if (Test-Path $backendPath) {
-    $backendRunning = Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue | Where-Object State -eq Listen
-    if ($backendRunning) {
-        Write-Host "   -> 后端已在运行 (端口 8080)" -ForegroundColor Green
-    } else {
-        Start-Process powershell -WindowStyle Normal -ArgumentList @"
-            `$env:MYSQL_ROOT_PASSWORD = '$mysqlPwd';
-            Set-Location '$backendPath';
-            Write-Host '=== 设备预约系统 后端服务 (端口 8080) ===' -ForegroundColor Cyan;
-            Write-Host '编译并启动后端...' -ForegroundColor Yellow;
-            mvn spring-boot:run;
-            Read-Host "`n按 Enter 关闭";
+    Stop-PortListener 8082 "后端服务"
+    Start-Process powershell -WindowStyle Normal -ArgumentList @"
+        `$env:MYSQL_ROOT_PASSWORD = '$mysqlPwd';
+        Set-Location '$backendPath';
+        Write-Host '=== 设备预约系统 后端服务 (端口 8082) ===' -ForegroundColor Cyan;
+        Write-Host '编译并启动后端...' -ForegroundColor Yellow;
+        mvn spring-boot:run;
+        Read-Host "`n按 Enter 关闭";
 "@
-        Write-Host "   [OK] 后端服务新窗口已打开" -ForegroundColor Green
-        Start-Sleep -Seconds 2
-    }
+    Write-Host "   [OK] 后端服务新窗口已打开" -ForegroundColor Green
+    Start-Sleep -Seconds 2
 } else {
     Write-Host "   -> 后端目录不存在，跳过" -ForegroundColor DarkYellow
 }
 Write-Host ""
 
 # =====================================================
-# 步骤 3: 启动前端（React + Ant Design + Vite，端口 5173）
+# 步骤 3: 启动前端（React + Ant Design + Vite，端口 5174）
 # =====================================================
-Write-Host "[3/3] 启动前端服务 (端口 5173)..." -ForegroundColor Yellow
+Write-Host "[3/3] 启动前端服务 (端口 5174)..." -ForegroundColor Yellow
 $frontendPath = Join-Path $rootDir "frontend"
 if (Test-Path $frontendPath) {
-    $frontendRunning = Get-NetTCPConnection -LocalPort 5173 -ErrorAction SilentlyContinue | Where-Object State -eq Listen
-    if ($frontendRunning) {
-        Write-Host "   -> 前端已在运行 (端口 5173)" -ForegroundColor Green
-    } else {
-        # 检查是 pnpm 还是 npm
-        $pkgManager = "pnpm"
-        if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
-            $pkgManager = "npm"
-        }
-        Start-Process powershell -WindowStyle Normal -ArgumentList @"
-            Set-Location '$frontendPath';
-            Write-Host '=== 设备预约系统 前端服务 (端口 5173) ===' -ForegroundColor Cyan;
-            if (-not (Test-Path 'node_modules')) {
-                Write-Host '正在安装前端依赖...' -ForegroundColor Yellow;
-                & $pkgManager install;
-            }
-            Write-Host '启动开发服务器...' -ForegroundColor Green;
-            & $pkgManager run dev;
-            Read-Host "`n按 Enter 关闭";
-"@
-        Write-Host "   [OK] 前端服务新窗口已打开" -ForegroundColor Green
+    Stop-PortListener 5174 "前端服务"
+    # 检查是 pnpm 还是 npm
+    $pkgManager = "pnpm"
+    if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+        $pkgManager = "npm"
     }
+    Start-Process powershell -WindowStyle Normal -ArgumentList @"
+        Set-Location '$frontendPath';
+        Write-Host '=== 设备预约系统 前端服务 (端口 5174) ===' -ForegroundColor Cyan;
+        if (-not (Test-Path 'node_modules')) {
+            Write-Host '正在安装前端依赖...' -ForegroundColor Yellow;
+            $env:CI = 'true'
+            & $pkgManager install
+            Remove-Item Env:CI -ErrorAction SilentlyContinue
+        } elseif ($pkgManager -eq 'pnpm') {
+            Write-Host '正在同步前端依赖...' -ForegroundColor Yellow;
+            $env:CI = 'true'
+            & $pkgManager install
+            Remove-Item Env:CI -ErrorAction SilentlyContinue
+        }
+        Write-Host '启动开发服务器...' -ForegroundColor Green;
+        & $pkgManager run dev;
+        Read-Host "`n按 Enter 关闭";
+"@
+    Write-Host "   [OK] 前端服务新窗口已打开" -ForegroundColor Green
 } else {
     Write-Host "   -> 前端目录不存在，跳过" -ForegroundColor DarkYellow
 }
@@ -126,9 +137,10 @@ if (Test-Path $frontendPath) {
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host "  系统启动中，请稍候..." -ForegroundColor Cyan
-Write-Host "  前端:  http://localhost:5173" -ForegroundColor White
-Write-Host "  后端:  http://localhost:8080" -ForegroundColor White
+Write-Host "  前端:  http://localhost:5174" -ForegroundColor White
+Write-Host "  后端:  http://localhost:8082" -ForegroundColor White
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "提示: 各个服务在独立窗口中运行，关闭窗口即停止服务" -ForegroundColor Gray
+Write-Host "提示: 每次启动都会先停止旧服务再重新启动" -ForegroundColor Gray
+Write-Host "      各个服务在独立窗口中运行，关闭窗口即停止服务" -ForegroundColor Gray
 Write-Host "      启动前请确保 MySQL 已运行" -ForegroundColor Gray

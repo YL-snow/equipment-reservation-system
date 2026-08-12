@@ -62,7 +62,12 @@ public class ReservationService {
         Equipment equipment = equipmentRepository.findById(request.getEquipmentId())
                 .orElseThrow(() -> new BusinessException("EQUIPMENT_NOT_FOUND", "设备不存在"));
 
-        if (equipment.getAvailableQty() < request.getQuantity()) {
+        Integer quantity = request.getQuantity();
+        if (quantity == null || quantity < 1) {
+            throw new BusinessException("INVALID_QUANTITY", "预约数量必须大于 0");
+        }
+
+        if (equipment.getAvailableQty() < quantity) {
             throw new BusinessException("INSUFFICIENT_STOCK", "当前可用库存不足");
         }
 
@@ -70,7 +75,7 @@ public class ReservationService {
         reservation.setEquipment(equipment);
         reservation.setApplicant(request.getApplicant());
         reservation.setUserId(request.getUserId());
-        reservation.setQuantity(request.getQuantity());
+        reservation.setQuantity(quantity);
         reservation.setStartTime(request.getStartTime());
         reservation.setEndTime(request.getEndTime());
         reservation.setRemark(request.getRemark());

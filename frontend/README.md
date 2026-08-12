@@ -12,7 +12,7 @@ npm install
 npm run dev
 ```
 
-默认启动在 `http://localhost:5173`
+默认启动在 `http://localhost:5174`
 
 ## 构建
 
@@ -34,7 +34,7 @@ npm run build
 
 ## 接口请求
 
-所有 API 请求通过 axios 实例发送，默认通过 Vite proxy 代理到 `http://localhost:8080`。请求自动携带 JWT Token。
+所有 API 请求通过 axios 实例发送，默认通过 Vite proxy 代理到 `http://localhost:8082`。请求自动携带 JWT Token。
 
 ## 项目结构
 

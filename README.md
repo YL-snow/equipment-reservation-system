@@ -214,7 +214,7 @@ cd backend
 mvn spring-boot:run
 ```
 
-后端默认启动在 `http://localhost:8080`
+后端默认启动在 `http://localhost:8082`
 
 ### 4. 启动前端
 
@@ -224,7 +224,7 @@ pnpm install
 pnpm run dev
 ```
 
-前端默认启动在 `http://localhost:5173`
+前端默认启动在 `http://localhost:5174`
 
 ### 5. Docker Compose 部署
 
@@ -239,6 +239,8 @@ docker-compose up -d
 kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/
 ```
+
+> 首次部署前，请先修改 `k8s/00-secret.yaml` 中的占位密码。
 
 ---
 

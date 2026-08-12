@@ -26,7 +26,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ers?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=utf-8
     ports:
-      - "8080:8080"
+      - "8082:8082"
     depends_on:
       mysql:
         condition: service_healthy

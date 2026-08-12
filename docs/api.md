@@ -2,7 +2,7 @@
 
 ## 接口说明
 
-所有接口采用 RESTful 风格，基路径为 `http://localhost:8080/api`。
+所有接口采用 RESTful 风格，基路径为 `http://localhost:8082/api`。
 
 统一返回格式：
 

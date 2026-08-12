@@ -18,7 +18,7 @@ mvn clean package -DskipTests
 java -jar target/backend-0.0.1-SNAPSHOT.jar
 ```
 
-默认启动在 `http://localhost:8080`
+默认启动在 `http://localhost:8082`
 
 ## 配置文件
 
@@ -27,7 +27,7 @@ java -jar target/backend-0.0.1-SNAPSHOT.jar
 | 配置项 | 说明 |
 |---|---|
 | 数据库 | MySQL `localhost:3306/ers`，用户 `root`，密码从环境变量 `MYSQL_ROOT_PASSWORD` 读取 |
-| 服务器端口 | 8080 |
+| 服务器端口 | 8082 |
 | JPA DDL | `validate`（仅校验，不自动建表） |
 | 时区 | Asia/Shanghai |
 

@@ -1,10 +1,14 @@
-﻿@echo off
+@echo off
 chcp 65001 >nul
 title 设备预约与耗材管理系统 - 一键启动
 cd /d "%~dp0"
 
-REM 请先设置 MySQL 密码环境变量，或直接修改下方密码
-set MYSQL_ROOT_PASSWORD=%MYSQL_ROOT_PASSWORD%
+REM 自动读取 backend\.env 中的 MYSQL_ROOT_PASSWORD
+if "%MYSQL_ROOT_PASSWORD%"=="" (
+    for /f "usebackq tokens=1,* delims==" %%a in ("%~dp0backend\.env") do (
+        if /i "%%a"=="MYSQL_ROOT_PASSWORD" set "MYSQL_ROOT_PASSWORD=%%b"
+    )
+)
 
 if "%MYSQL_ROOT_PASSWORD%"=="" (
     echo 请先设置 MySQL 密码：

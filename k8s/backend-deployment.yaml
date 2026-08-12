@@ -24,16 +24,22 @@ spec:
       - name: equipment-backend
         image: 10.160.199.150:8443/32301163/equipment-backend:v2.0.10
         ports:
-        - containerPort: 8080
+        - containerPort: 8082
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: "root"
+          valueFrom:
+            secretKeyRef:
+              name: equipment-backend-secret
+              key: mysql-root-password
         - name: SPRING_DATASOURCE_URL
           value: "jdbc:mysql://mysql.app.svc.cluster.local:3306/ers?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&useUnicode=true"
         - name: SPRING_DATASOURCE_USERNAME
           value: "root"
         - name: SPRING_DATASOURCE_PASSWORD
-          value: "Ab123456"
+          valueFrom:
+            secretKeyRef:
+              name: equipment-backend-secret
+              key: datasource-password
         - name: SPRING_JPA_HIBERNATE_DDL_AUTO
           value: "validate"
         - name: SPRING_JPA_SHOW_SQL
@@ -54,14 +60,14 @@ spec:
         livenessProbe:
           httpGet:
             path: /api/equipment
-            port: 8080
+            port: 8082
           initialDelaySeconds: 60
           periodSeconds: 30
           timeoutSeconds: 10
         readinessProbe:
           httpGet:
             path: /api/equipment
-            port: 8080
+            port: 8082
           initialDelaySeconds: 30
           periodSeconds: 15
           timeoutSeconds: 10
@@ -75,7 +81,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 8080
-    targetPort: 8080
+  - port: 8082
+    targetPort: 8082
   selector:
     app: equipment-backend
